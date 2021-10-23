@@ -1,10 +1,8 @@
 export function getTextColorClass(color) {
-  if (typeof color !== 'string') {
-    return ''
+  if (typeof color !== "string") {
+    return "";
   }
 
-  const [ name, shade ] = color.split('.')
-  return color && (
-    shade ? `text-${name}-${shade}` : `text-${name}`
-  )
+  const [name, shade] = color.split(".");
+  return color && (shade ? `text-${name}-${shade}` : `text-${name}`);
 }
