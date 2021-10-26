@@ -1,12 +1,9 @@
 import { useState, useLayoutEffect } from "react";
-import {
-  RootLayout,
-  HeaderLayout,
-  SidebarLayout,
-  MainLayout,
-  Text,
-} from "./ui-kit";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { RootLayout, HeaderLayout, SidebarLayout, MainLayout } from "./ui-kit";
 import Header from "./Header";
+import Home from "./Home";
+import MoviePoll from "./MoviePoll";
 import useMedia from "../hooks/useMedia";
 import { defaultTheme } from "./ui-kit";
 
@@ -20,18 +17,27 @@ function App() {
   }, [isLargeScreen]);
 
   return (
-    <RootLayout data-testid="app-container">
-      <HeaderLayout>
-        <Header
-          showMenuButton={!isLargeScreen}
-          onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        />
-      </HeaderLayout>
-      <SidebarLayout show={isSidebarOpen}></SidebarLayout>
-      <MainLayout show={isLargeScreen || !isSidebarOpen}>
-        <Text size="2xl">Sorry, you don't have any open polls!</Text>
-      </MainLayout>
-    </RootLayout>
+    <Router>
+      <RootLayout data-testid="app-container">
+        <HeaderLayout>
+          <Header
+            showMenuButton={!isLargeScreen}
+            onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          />
+        </HeaderLayout>
+        <SidebarLayout show={isSidebarOpen}></SidebarLayout>
+        <MainLayout show={isLargeScreen || !isSidebarOpen}>
+          <Switch>
+            <Route path="/polls/create" exact={true}>
+              <MoviePoll create={true} />
+            </Route>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </MainLayout>
+      </RootLayout>
+    </Router>
   );
 }
 

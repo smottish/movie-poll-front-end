@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import { getTextColorClass } from "./utils";
+import { getColorClass } from "./utils";
 
 export function Text({
   size,
@@ -13,7 +13,7 @@ export function Text({
 }) {
   const classes = classNames(
     `text-${size}`,
-    getTextColorClass(color),
+    getColorClass("text", color),
     `font-${weight}`,
     transform,
     className
