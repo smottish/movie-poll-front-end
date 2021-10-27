@@ -1,5 +1,6 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 import App from "../App";
+import { render } from "../../test-utils";
 
 beforeEach(() => {
   Object.defineProperty(window, "matchMedia", {

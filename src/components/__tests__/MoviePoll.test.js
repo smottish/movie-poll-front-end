@@ -1,5 +1,26 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
+import { useSelector } from "react-redux";
 import MoviePoll from "../MoviePoll";
+import { render } from "../../test-utils";
+import { createPoll } from "../../slices/poll";
+
+function addMovies(screen, movies = []) {
+  const addMovie = screen.getByText(/add movie/i);
+  const titleInput = screen.getByLabelText(/title/i);
+  movies.forEach((title) => {
+    fireEvent.change(titleInput, { target: { value: title } });
+    fireEvent.click(addMovie);
+  });
+}
+
+function createPollTestReducer(state = { poll: null }, action) {
+  switch (action.type) {
+    case createPoll.fulfilled.type:
+      return { ...state, poll: action.payload.result };
+    default:
+      return state;
+  }
+}
 
 test("renders create MoviePoll", () => {
   render(<MoviePoll create={true} />);
@@ -23,12 +44,7 @@ test("should add a movie", () => {
 test("should be a button to create poll", () => {
   const movies = ["Soul", "Up"];
   render(<MoviePoll create={true} />);
-  const addMovie = screen.getByText(/add movie/i);
-  const titleInput = screen.getByLabelText(/title/i);
-  movies.forEach((title) => {
-    fireEvent.change(titleInput, { target: { value: title } });
-    fireEvent.click(addMovie);
-  });
+  addMovies(screen, movies);
   const createPoll = screen.getByText(/create poll/i);
   expect(createPoll).toBeInTheDocument();
 });
@@ -44,4 +60,29 @@ test("should remove a movie", () => {
   fireEvent.click(remove);
   const movie = screen.queryByText(testMovie);
   expect(movie).toBeNull();
+});
+
+test("should create a poll", async () => {
+  const TEST_ID = "should-create-poll-success";
+  function Test() {
+    const firstTitle = useSelector((state) =>
+      state.test.poll ? state.test.poll.movies[0].title : ""
+    );
+    return firstTitle && <span data-testid={TEST_ID}>{firstTitle}</span>;
+  }
+  render(
+    <>
+      <MoviePoll create={true} />
+      <Test />
+    </>,
+    {
+      reducers: {
+        test: createPollTestReducer,
+      },
+    }
+  );
+  addMovies(screen, ["Soul", "Up"]);
+  const createPoll = screen.getByText(/create poll/i);
+  fireEvent.click(createPoll);
+  expect(await screen.findByTestId(TEST_ID)).toBeInTheDocument();
 });

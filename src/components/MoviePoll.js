@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useHistory } from "react-router";
+import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import {
   Flex,
@@ -12,11 +13,20 @@ import {
 } from "./ui-kit";
 import { TrashIcon } from "@heroicons/react/outline";
 import classNames from "classnames";
+import { createPoll } from "../slices/poll";
 
 export default function MoviePoll({ create }) {
   const [movieTitle, setMovieTitle] = useState("");
   const [movies, setMovies] = useState([]);
   const history = useHistory();
+  const dispatch = useDispatch();
+
+  // If you're passing this into a child component, and you want
+  // to optimize the rendering of the child, can use useCallback
+  // here.
+  const onClickCreatePoll = () => {
+    dispatch(createPoll({ movies: movies.map(({ title }) => ({ title })) }));
+  };
 
   const removeMovie = (id) => {
     setMovies(movies.filter(({ __id }) => __id !== id));
@@ -73,7 +83,9 @@ export default function MoviePoll({ create }) {
       </Flex>
       <Flex spaceX={2} mt={6}>
         <DangerButton onClick={() => history.goBack()}>Cancel</DangerButton>
-        {movies.length >= 2 && <PrimaryButton>Create Poll</PrimaryButton>}
+        {movies.length >= 2 && (
+          <PrimaryButton onClick={onClickCreatePoll}>Create Poll</PrimaryButton>
+        )}
       </Flex>
     </>
   );
