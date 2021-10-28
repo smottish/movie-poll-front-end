@@ -17,7 +17,7 @@ import { createPoll } from "../slices/poll";
 
 export default function MoviePoll({ create }) {
   const [movieTitle, setMovieTitle] = useState("");
-  const [movies, setMovies] = useState([]);
+  const [choices, setChoices] = useState([]);
   const history = useHistory();
   const dispatch = useDispatch();
 
@@ -25,11 +25,11 @@ export default function MoviePoll({ create }) {
   // to optimize the rendering of the child, can use useCallback
   // here.
   const onClickCreatePoll = () => {
-    dispatch(createPoll({ movies: movies.map(({ title }) => ({ title })) }));
+    dispatch(createPoll({ choices: choices.map(({ title }) => ({ title })) }));
   };
 
   const removeMovie = (id) => {
-    setMovies(movies.filter(({ __id }) => __id !== id));
+    setChoices(choices.filter(({ __id }) => __id !== id));
   };
 
   return (
@@ -37,7 +37,7 @@ export default function MoviePoll({ create }) {
       <form
         onSubmit={(ev) => {
           ev.preventDefault();
-          setMovies([...movies, { title: movieTitle, __id: Date.now() }]);
+          setChoices([...choices, { title: movieTitle, __id: Date.now() }]);
         }}
       >
         <Flex direction="col" spaceY={4} alignItems="start">
@@ -57,7 +57,7 @@ export default function MoviePoll({ create }) {
         width={["full", "3/4", "3/5", "1/2"]}
         mt={4}
       >
-        {movies.map(({ title, __id }) => (
+        {choices.map(({ title, __id }) => (
           <Flex
             key={__id}
             justifyContent="between"
@@ -83,7 +83,7 @@ export default function MoviePoll({ create }) {
       </Flex>
       <Flex spaceX={2} mt={6}>
         <DangerButton onClick={() => history.goBack()}>Cancel</DangerButton>
-        {movies.length >= 2 && (
+        {choices.length >= 2 && (
           <PrimaryButton onClick={onClickCreatePoll}>Create Poll</PrimaryButton>
         )}
       </Flex>

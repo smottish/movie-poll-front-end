@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import MoviePoll from "../MoviePoll";
 import { render } from "../../test-utils";
 import { createPoll } from "../../slices/poll";
+import { rest } from "msw";
+import { setupServer } from "msw/node";
 
 function addMovies(screen, movies = []) {
   const addMovie = screen.getByText(/add movie/i);
@@ -21,6 +23,20 @@ function createPollTestReducer(state = { poll: null }, action) {
       return state;
   }
 }
+
+// TODO: Consider moving mocked API calls to a mocks folder. See
+// https://mswjs.io/docs/getting-started/mocks
+// for an example.
+const handlers = [
+  rest.post("/polls", (req, res, ctx) => {
+    return res(ctx.status(201), ctx.json(req.body));
+  }),
+];
+const server = setupServer(...handlers);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 test("renders create MoviePoll", () => {
   render(<MoviePoll create={true} />);
@@ -66,7 +82,7 @@ test("should create a poll", async () => {
   const TEST_ID = "should-create-poll-success";
   function Test() {
     const firstTitle = useSelector((state) =>
-      state.test.poll ? state.test.poll.movies[0].title : ""
+      state.test.poll ? state.test.poll.choices[0].title : ""
     );
     return firstTitle && <span data-testid={TEST_ID}>{firstTitle}</span>;
   }

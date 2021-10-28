@@ -1,0 +1,5 @@
+{
+  "/polls": "/polls?_embed=choices",
+  "/polls/:id": "/polls/:id?_embed=choices",
+  "/polls/:id/results": "/polls/:id?_embed=votes&_embed=choices"
+}
