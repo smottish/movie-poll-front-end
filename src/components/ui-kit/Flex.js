@@ -1,6 +1,11 @@
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import { getColorClass, getWidthClasses, SHARED_PROP_TYPES } from "./utils";
+import {
+  getColorClass,
+  getWidthClasses,
+  getBorderClasses,
+  SHARED_PROP_TYPES,
+} from "./utils";
 
 export function Flex({
   children,
@@ -9,6 +14,7 @@ export function Flex({
   textColor,
   borderWidth,
   borderColor,
+  borderRadius,
   direction,
   spaceX,
   spaceY,
@@ -17,6 +23,8 @@ export function Flex({
   mt,
   mr,
   ml,
+  mx,
+  my,
   width,
   className,
   ...props
@@ -34,8 +42,9 @@ export function Flex({
     mt && `mt-${mt}`,
     mr && `mr-${mr}`,
     ml && `ml-${ml}`,
-    borderWidth && `border-${borderWidth}`,
-    getColorClass("border", borderColor),
+    mx && `mx-${mx}`,
+    my && `my-${my}`,
+    ...getBorderClasses(borderWidth, borderColor, borderRadius),
     ...getWidthClasses(width),
     className
   );
@@ -71,7 +80,10 @@ Flex.propTypes = {
   mt: PropTypes.number,
   mr: PropTypes.number,
   ml: PropTypes.number,
+  mx: PropTypes.number,
+  my: PropTypes.number,
   borderWidth: PropTypes.number,
   borderColor: PropTypes.string,
+  BorderRadius: PropTypes.oneOf(["sm", "md", "lg", "xl"]),
   ...SHARED_PROP_TYPES,
 };

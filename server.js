@@ -11,6 +11,23 @@ const router = jsonServer.router(path.join(__dirname, "db.json"));
 const db = router.db;
 const middlewares = jsonServer.defaults();
 
+function getPermaLink(req) {
+  return `${req.protocol}://${req.hostname}:3000${req.path}`;
+}
+
+router.render = (req, res) => {
+  if (res.locals.hasPermaLink) {
+    if (Array.isArray(res.locals.data)) {
+      res.locals.data.forEach((obj) => {
+        obj.link = `${getPermaLink(req)}/${obj.id}`;
+      });
+    } else if (res.locals.data) {
+      res.locals.data.link = getPermaLink(req);
+    }
+  }
+  res.jsonp(res.locals.data);
+};
+
 server.use(middlewares);
 server.use(jsonServer.bodyParser);
 
@@ -29,10 +46,21 @@ server.post("/polls", (req, res) => {
 
   const result = {
     id: pollId,
+    link: `${getPermaLink(req)}/${pollId}`,
     choices,
   };
   res.status(201);
   res.jsonp(result);
+});
+
+server.get("/polls", (req, res, next) => {
+  res.locals.hasPermaLink = true;
+  next();
+});
+
+server.get("/polls/:id", (req, res, next) => {
+  res.locals.hasPermaLink = true;
+  next();
 });
 
 function run(args) {

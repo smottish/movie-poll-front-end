@@ -42,7 +42,11 @@ export function SecondaryButton({ children, ...props }) {
     "uppercase",
     "hover:bg-blue-100"
   );
-  return <Button className={classes}>{children}</Button>;
+  return (
+    <Button className={classes} {...props}>
+      {children}
+    </Button>
+  );
 }
 
 export function DangerButton({ children, ...props }) {

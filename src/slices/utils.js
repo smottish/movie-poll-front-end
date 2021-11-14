@@ -128,3 +128,10 @@ export function createAsyncAction(type, payloadCreator) {
     rejected,
   });
 }
+
+export const ASYNC_ACTION_STATES = {
+  PENDING: "pending",
+  FULFILLED: "fulfilled",
+  REJECTED: "rejected",
+  INIT: "init",
+};

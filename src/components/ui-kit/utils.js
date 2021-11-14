@@ -32,6 +32,20 @@ export function getHeightClasses(height) {
   return getDimensionClasses("h", height);
 }
 
+export function getBorderClasses(width, color, radius) {
+  const radiusClasses = {
+    sm: "rounded-sm",
+    md: "rounded",
+    lg: "rounded-md",
+    xl: "rounded-lg",
+  };
+  return [
+    width && `border-${width}`,
+    getColorClass("border", color),
+    radius && radiusClasses[radius],
+  ];
+}
+
 export const SHARED_PROP_TYPES = {
   width: PropTypes.oneOfType([
     PropTypes.string,
