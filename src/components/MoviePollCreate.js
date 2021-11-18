@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import PropTypes from "prop-types";
 import {
   Flex,
   SecondaryButton,
@@ -18,7 +17,7 @@ import { createPoll, resetPoll } from "../slices/poll";
 import { ASYNC_ACTION_STATES } from "../slices/utils";
 import CopyText from "./CopyText";
 
-export default function MoviePoll({ create }) {
+export default function MoviePollCreate(props) {
   const [movieTitle, setMovieTitle] = useState("");
   const [choices, setChoices] = useState([]);
   const createStatus = useSelector((state) => state.poll.createPollStatus);
@@ -132,11 +131,3 @@ export default function MoviePoll({ create }) {
     </>
   );
 }
-
-MoviePoll.propTypes = {
-  create: PropTypes.bool,
-};
-
-MoviePoll.defaultProps = {
-  create: false,
-};

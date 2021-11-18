@@ -1,5 +1,5 @@
 import { screen, fireEvent } from "@testing-library/react";
-import MoviePoll from "../MoviePoll";
+import MoviePollCreate from "../MoviePollCreate";
 import MoviePollDetails from "../MoviePollDetails";
 import { render } from "../../test-utils";
 import { rest } from "msw";
@@ -68,15 +68,15 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-test("renders create MoviePoll", () => {
-  render(<MoviePoll create={true} />);
+test("renders create movie poll", () => {
+  render(<MoviePollCreate />);
   const addMovie = screen.getByText(/add movie/i);
   expect(addMovie).toBeInTheDocument();
 });
 
 test("should add a movie", () => {
   const testMovie = "Star Wars";
-  render(<MoviePoll create={true} />);
+  render(<MoviePollCreate />);
   const addMovie = screen.getByText(/add movie/i);
   const title = screen.getByLabelText(/title/i);
   fireEvent.change(title, { target: { value: testMovie } });
@@ -89,7 +89,7 @@ test("should add a movie", () => {
 
 test("should be a button to create poll", () => {
   const movies = ["Soul", "Up"];
-  render(<MoviePoll create={true} />);
+  render(<MoviePollCreate />);
   addMovies(screen, movies);
   const createPoll = screen.getByText(/create poll/i);
   expect(createPoll).toBeInTheDocument();
@@ -97,7 +97,7 @@ test("should be a button to create poll", () => {
 
 test("should remove a movie", () => {
   const testMovie = "Star Wars";
-  render(<MoviePoll create={true} />);
+  render(<MoviePollCreate />);
   const addMovie = screen.getByText(/add movie/i);
   const title = screen.getByLabelText(/title/i);
   fireEvent.change(title, { target: { value: testMovie } });
@@ -109,7 +109,7 @@ test("should remove a movie", () => {
 });
 
 test("should create a poll", async () => {
-  render(<MoviePoll create={true} />);
+  render(<MoviePollCreate />);
   addMovies(screen, ["Soul", "Up"]);
   const createPoll = screen.getByText(/create poll/i);
   fireEvent.click(createPoll);
@@ -118,7 +118,7 @@ test("should create a poll", async () => {
 
 test("create poll failure should display error", async () => {
   isCreatePollError = true;
-  render(<MoviePoll create={true} />);
+  render(<MoviePollCreate />);
   addMovies(screen, ["Soul", "Up"]);
   const createPoll = screen.getByText(/create poll/i);
   fireEvent.click(createPoll);
@@ -126,7 +126,7 @@ test("create poll failure should display error", async () => {
 });
 
 test("create another poll", async () => {
-  render(<MoviePoll create={true} />);
+  render(<MoviePollCreate />);
   addMovies(screen, ["Soul", "Up"]);
   const createPoll = screen.getByText(/create poll/i);
   fireEvent.click(createPoll);

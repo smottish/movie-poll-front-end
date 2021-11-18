@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { RootLayout, HeaderLayout, SidebarLayout, MainLayout } from "./ui-kit";
 import Header from "./Header";
 import Home from "./Home";
-import MoviePoll from "./MoviePoll";
+import MoviePollCreate from "./MoviePollCreate";
 import MoviePollDetails from "./MoviePollDetails";
 import useMedia from "../hooks/useMedia";
 import { defaultTheme } from "./ui-kit";
@@ -30,7 +30,7 @@ function App() {
         <MainLayout show={isLargeScreen || !isSidebarOpen}>
           <Switch>
             <Route path="/polls/create" exact={true}>
-              <MoviePoll create={true} />
+              <MoviePollCreate />
             </Route>
             <Route path="/polls/:id">
               <MoviePollDetails />
