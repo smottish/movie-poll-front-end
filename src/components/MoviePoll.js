@@ -12,28 +12,15 @@ import {
   getHeightClasses,
   Text,
 } from "./ui-kit";
-import { TrashIcon, DuplicateIcon } from "@heroicons/react/outline";
+import { TrashIcon } from "@heroicons/react/outline";
 import classNames from "classnames";
 import { createPoll, resetPoll } from "../slices/poll";
 import { ASYNC_ACTION_STATES } from "../slices/utils";
-
-async function copyToClipboard(text) {
-  if (navigator && navigator.clipboard) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (err) {
-      return false;
-    }
-  }
-
-  return false;
-}
+import CopyText from "./CopyText";
 
 export default function MoviePoll({ create }) {
   const [movieTitle, setMovieTitle] = useState("");
   const [choices, setChoices] = useState([]);
-  const [copiedText, setCopiedText] = useState("");
   const createStatus = useSelector((state) => state.poll.createPollStatus);
   const poll = useSelector((state) => state.poll.poll);
   const error = useSelector((state) => state.poll.error);
@@ -43,19 +30,6 @@ export default function MoviePoll({ create }) {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => () => dispatch(resetPoll()), []); // reset state on unmount
-
-  useEffect(() => {
-    let timer;
-    if (copiedText !== "") {
-      timer = setTimeout(() => setCopiedText(""), 1000);
-    }
-
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-  }, [copiedText]);
 
   // If you're passing this into a child component, and you want
   // to optimize the rendering of the child, can use useCallback
@@ -77,16 +51,6 @@ export default function MoviePoll({ create }) {
     setChoices([...choices, { title: movieTitle, __id: Date.now() }]);
   };
 
-  const onCopyPollLink = () => {
-    copyToClipboard(poll.link).then((success) => {
-      if (success) {
-        setCopiedText("Copied!");
-      } else {
-        setCopiedText("Sorry, couldn't copy!");
-      }
-    });
-  };
-
   const removeMovie = (id) => {
     setChoices(choices.filter(({ __id }) => __id !== id));
   };
@@ -98,29 +62,7 @@ export default function MoviePoll({ create }) {
           Your poll is ready. Share the following link with your friends and
           family!
         </Text>
-        <Flex
-          borderWidth={2}
-          borderRadius="md"
-          borderColor="gray.700"
-          justifyContent="between"
-          alignItems="center"
-          p={4}
-          my={5}
-        >
-          <Text size="lg">{poll.link}</Text>
-          {copiedText ? (
-            <Text size="sm">{copiedText}</Text>
-          ) : (
-            <button onClick={onCopyPollLink}>
-              <DuplicateIcon
-                className={classNames(
-                  ...getWidthClasses(6),
-                  ...getHeightClasses(6)
-                )}
-              />
-            </button>
-          )}
-        </Flex>
+        <CopyText text={poll.link} />
         <Flex spaceX={2}>
           <PrimaryButton onClick={() => history.push("/")}>Done</PrimaryButton>
           <SecondaryButton onClick={onClickCreateAnother}>

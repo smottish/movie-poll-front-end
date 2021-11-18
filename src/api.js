@@ -14,7 +14,7 @@ const checkStatus = (expected) => (response) => {
   return response;
 };
 
-export async function createPoll(poll) {
+export function createPoll(poll) {
   return fetch("/polls", {
     method: "POST",
     headers: {
@@ -23,5 +23,16 @@ export async function createPoll(poll) {
     body: JSON.stringify(poll),
   })
     .then(checkStatus(201))
+    .then((response) => response.json());
+}
+
+export function getPoll(id) {
+  return fetch(`/polls/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then(checkStatus(200))
     .then((response) => response.json());
 }

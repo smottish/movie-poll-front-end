@@ -1,12 +1,15 @@
-import { createPoll } from "./poll";
+import { createPoll, getPoll } from "./poll";
 
-export default function reducer(state = { show: false }, action) {
+export default function reducer(state = { isLoading: false }, action) {
   switch (action.type) {
     case createPoll.pending.type:
-      return { show: true };
+    case getPoll.pending.type:
+      return { isLoading: true };
     case createPoll.fulfilled.type:
     case createPoll.rejected.type:
-      return { show: false };
+    case getPoll.fulfilled.type:
+    case getPoll.rejected.type:
+      return { isLoading: false };
     default:
       return state;
   }

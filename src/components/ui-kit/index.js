@@ -6,5 +6,6 @@ export * from "./Flex";
 export * from "./Buttons";
 export * from "./Text";
 export * from "./Form";
+export * from "./Skeleton";
 export * from "./utils";
 export * from "./theme";

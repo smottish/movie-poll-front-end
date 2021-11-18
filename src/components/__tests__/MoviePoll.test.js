@@ -1,10 +1,34 @@
 import { screen, fireEvent } from "@testing-library/react";
 import MoviePoll from "../MoviePoll";
+import MoviePollDetails from "../MoviePollDetails";
 import { render } from "../../test-utils";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
+import { MemoryRouter, Route } from "react-router-dom";
 
 let isCreatePollError = false;
+
+const TEST_POLL = {
+  id: 1,
+  choices: [
+    {
+      id: 1,
+      pollId: 1,
+      title: "Star Wars: A New Hope",
+    },
+    {
+      id: 2,
+      pollId: 1,
+      title: "Star Wars: Empire Strikes Back",
+    },
+    {
+      id: 3,
+      pollId: 1,
+      title: "Star Wars: Return of the Jedi",
+    },
+  ],
+  link: "http://example.com/polls/1",
+};
 
 function addMovies(screen, movies = []) {
   const addMovie = screen.getByText(/add movie/i);
@@ -24,6 +48,14 @@ const handlers = [
       return res(ctx.status(500));
     } else {
       return res(ctx.status(201), ctx.json(req.body));
+    }
+  }),
+  rest.get("/polls/:id", (req, res, ctx) => {
+    const { id } = req.params;
+    if (id === "error") {
+      return res(ctx.status(404));
+    } else {
+      return res(ctx.status(200), ctx.json(TEST_POLL));
     }
   }),
 ];
@@ -102,4 +134,30 @@ test("create another poll", async () => {
   const createAnother = screen.getByText(/create another/i);
   fireEvent.click(createAnother);
   expect(screen.queryByTestId("create-poll-success")).not.toBeInTheDocument();
+});
+
+test("should display a poll", async () => {
+  render(
+    <MemoryRouter initialEntries={["/polls/1"]}>
+      <Route path="/polls/:id">
+        <MoviePollDetails />
+      </Route>
+    </MemoryRouter>
+  );
+  const voteBtn = await screen.findByTestId(
+    `vote ${TEST_POLL.choices[0].title}`
+  );
+  expect(voteBtn).toBeInTheDocument();
+});
+
+test("should display an error", async () => {
+  render(
+    <MemoryRouter initialEntries={["/polls/error"]}>
+      <Route path="/polls/:id">
+        <MoviePollDetails />
+      </Route>
+    </MemoryRouter>
+  );
+  const error = await screen.findByTestId("get-poll-failure");
+  expect(error).toBeInTheDocument();
 });
