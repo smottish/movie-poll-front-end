@@ -43,6 +43,7 @@ server.post("/polls", (req, res) => {
           db.get("choices").insert({ pollId, title }).value()
         )
       : [];
+  db.write();
 
   const result = {
     id: pollId,

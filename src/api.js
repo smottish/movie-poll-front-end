@@ -36,3 +36,15 @@ export function getPoll(id) {
     .then(checkStatus(200))
     .then((response) => response.json());
 }
+
+export function submitVote(pollId, choiceId) {
+  return fetch("/votes", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ pollId, choiceId }),
+  })
+    .then(checkStatus(201))
+    .then((response) => response.json());
+}

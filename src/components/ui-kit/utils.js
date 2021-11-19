@@ -46,6 +46,18 @@ export function getBorderClasses(width, color, radius) {
   ];
 }
 
+export function getLinkClasses() {
+  return [
+    "px-6",
+    "py-3",
+    "rounded-md",
+    "font-medium",
+    "uppercase",
+    "text-orange-500",
+    "hover:bg-orange-200",
+  ].join(" ");
+}
+
 export const SHARED_PROP_TYPES = {
   width: PropTypes.oneOfType([
     PropTypes.string,

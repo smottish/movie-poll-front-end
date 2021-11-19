@@ -7,6 +7,7 @@ import { setupServer } from "msw/node";
 import { MemoryRouter, Route } from "react-router-dom";
 
 let isCreatePollError = false;
+let isVoteError = false;
 
 const TEST_POLL = {
   id: 1,
@@ -50,13 +51,26 @@ const handlers = [
       return res(ctx.status(201), ctx.json(req.body));
     }
   }),
+
   rest.get("/polls/:id", (req, res, ctx) => {
     const { id } = req.params;
-    if (id === "error") {
+    if (isNaN(parseInt(id))) {
       return res(ctx.status(404));
     } else {
       return res(ctx.status(200), ctx.json(TEST_POLL));
     }
+  }),
+
+  rest.post("/votes", (req, res, ctx) => {
+    if (isVoteError) {
+      return res(ctx.status(500));
+    }
+
+    const response = {
+      ...TEST_POLL,
+      votes: [{ ...req.body }],
+    };
+    return res(ctx.status(201), ctx.json(response));
   }),
 ];
 const server = setupServer(...handlers);
@@ -65,6 +79,7 @@ beforeAll(() => server.listen());
 afterEach(() => {
   server.resetHandlers();
   isCreatePollError = false;
+  isVoteError = false;
 });
 afterAll(() => server.close());
 
@@ -152,12 +167,49 @@ test("should display a poll", async () => {
 
 test("should display an error", async () => {
   render(
-    <MemoryRouter initialEntries={["/polls/error"]}>
+    <MemoryRouter initialEntries={["/polls/invalid"]}>
       <Route path="/polls/:id">
         <MoviePollDetails />
       </Route>
     </MemoryRouter>
   );
-  const error = await screen.findByTestId("get-poll-failure");
+  const error = await screen.findByTestId("poll-details-failure");
   expect(error).toBeInTheDocument();
+});
+
+test("voting should succeed", async () => {
+  render(
+    <MemoryRouter initialEntries={["/polls/1"]}>
+      <Route path="/polls/:id">
+        <MoviePollDetails />
+      </Route>
+    </MemoryRouter>
+  );
+  const voteBtn = await screen.findByTestId(
+    `vote ${TEST_POLL.choices[0].title}`
+  );
+
+  fireEvent.click(voteBtn);
+  const submitBtn = await screen.findByText(/vote/i);
+  fireEvent.click(submitBtn);
+  expect(await screen.findByTestId("submit-vote-success")).toBeInTheDocument();
+});
+
+test("voting should fail", async () => {
+  isVoteError = true;
+  render(
+    <MemoryRouter initialEntries={["/polls/1"]}>
+      <Route path="/polls/:id">
+        <MoviePollDetails />
+      </Route>
+    </MemoryRouter>
+  );
+  const voteBtn = await screen.findByTestId(
+    `vote ${TEST_POLL.choices[0].title}`
+  );
+
+  fireEvent.click(voteBtn);
+  const submitBtn = await screen.findByText(/vote/i);
+  fireEvent.click(submitBtn);
+  expect(await screen.findByTestId("poll-details-failure")).toBeInTheDocument();
 });
