@@ -25,18 +25,54 @@ router.render = (req, res) => {
       res.locals.data.link = getPermaLink(req);
     }
   }
+
+  if (req.method === "GET" && req.path === "/polls") {
+    // Only include polls that the user has voted in or
+    // created. We're including this logic in `router.render`
+    // so we can use json-server's middleware to handle
+    // the GET request. Otherwise, we'd have to write our own
+    // handler for GET /polls.
+    const user = res.locals.user;
+    res.locals.data = res.locals.data.filter(
+      (poll) =>
+        poll.owner === user.id ||
+        poll.votes.find((vote) => vote.participantId === user.id)
+    );
+  }
   res.jsonp(res.locals.data);
 };
 
 server.use(middlewares);
 server.use(jsonServer.bodyParser);
 
+// Custom middleware
+
+server.use((req, res, next) => {
+  // Only anon users are supported right now
+  res.locals.user = {
+    id: req.header("Anon-Authorization"),
+    isAnon: true,
+  };
+  next();
+});
+
+server.use((req, res, next) => {
+  if (req.method === "POST") {
+    req.body.createdAt = Date.now();
+  }
+  next();
+});
+
 // Custom routes. For reference, see create/update/destroy/list, etc. in
 // https://github.com/typicode/json-server/blob/master/src/server/router/plural.js
 // to see how json-server handles routes.
 
 server.post("/polls", (req, res) => {
-  const pollId = db.get("polls").insert({}).value().id;
+  const user = res.locals.user;
+  const pollId = db
+    .get("polls")
+    .insert({ owner: user.id, createdAt: req.body.createdAt })
+    .value().id;
   const choices =
     req.body && Array.isArray(req.body.choices)
       ? req.body.choices.map(({ title }) =>
@@ -61,6 +97,11 @@ server.get("/polls", (req, res, next) => {
 
 server.get("/polls/:id", (req, res, next) => {
   res.locals.hasPermaLink = true;
+  next();
+});
+
+server.post("/votes", (req, res, next) => {
+  req.body.participantId = res.locals.user.id;
   next();
 });
 

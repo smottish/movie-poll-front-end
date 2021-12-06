@@ -7,5 +7,6 @@ export * from "./Buttons";
 export * from "./Text";
 export * from "./Form";
 export * from "./Skeleton";
+export * from "./Card";
 export * from "./utils";
 export * from "./theme";

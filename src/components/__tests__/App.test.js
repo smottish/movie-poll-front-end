@@ -1,4 +1,4 @@
-import { screen, fireEvent } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import App from "../App";
 import { render } from "../../test-utils";
 
@@ -20,12 +20,4 @@ test("renders App container", () => {
   render(<App />);
   const app = screen.getByTestId("app-container");
   expect(app).toBeInTheDocument();
-});
-
-test("should navigate to create a poll page", async () => {
-  render(<App />);
-  const createButton = screen.getByText(/create a poll/i);
-  fireEvent.click(createButton);
-  const addMovie = await screen.findByText(/Add movie/i);
-  expect(addMovie).toBeInTheDocument();
 });

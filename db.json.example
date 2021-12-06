@@ -1,10 +1,10 @@
 {
-  "polls": [{ "id": 1 }],
+  "polls": [{ "id": 1, "owner": "1234", "createdAt": 1636678800000 }],
   "choices": [
     { "id": 1, "pollId": 1, "title": "Star Wars: A New Hope" },
     { "id": 2, "pollId": 1, "title": "Star Wars: Empire Strikes Back" },
     { "id": 3, "pollId": 1, "title": "Star Wars: Return of the Jedi" }
   ],
-  "votes": [{ "id": 1, "participantId": 1234, "pollId": 1, "choiceId": 1 }],
-  "participants": [{ "id": 1234 }]
+  "votes": [{ "id": 1, "participantId": "1234", "pollId": 1, "choiceId": 1, "createdAt": 1636679100000 }],
+  "participants": [{ "id": "1234", "createdAt": 1636678800000 }]
 }
