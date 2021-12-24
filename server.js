@@ -71,7 +71,11 @@ server.post("/polls", (req, res) => {
   const user = res.locals.user;
   const pollId = db
     .get("polls")
-    .insert({ owner: user.id, createdAt: req.body.createdAt })
+    .insert({
+      title: req.body.title,
+      owner: user.id,
+      createdAt: req.body.createdAt,
+    })
     .value().id;
   const choices =
     req.body && Array.isArray(req.body.choices)
@@ -83,6 +87,7 @@ server.post("/polls", (req, res) => {
 
   const result = {
     id: pollId,
+    title: req.body.title,
     link: `${getPermaLink(req)}/${pollId}`,
     choices,
   };

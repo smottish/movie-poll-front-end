@@ -11,12 +11,12 @@ import {
 import { useHistory, Link } from "react-router-dom";
 import { getPolls as apiGetPolls } from "../api";
 
-function PollListItem({ id }) {
+function PollListItem({ id, title }) {
   // TODO: link should be /poll/:id/results if the user
   // has already voted
   return (
     <Card width={"full"}>
-      <CardContent>{`Poll #${id}`}</CardContent>
+      <CardContent>{title}</CardContent>
       <CardActions>
         <Link to={`/polls/${id}`} className={getLinkClasses()}>
           View Poll

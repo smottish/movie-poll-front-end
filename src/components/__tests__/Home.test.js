@@ -60,7 +60,9 @@ test("Home should show recent polls", async () => {
       <Home />
     </MemoryRouter>
   );
-  // TODO: Change this once we're displaying Poll titles
-  const polls = await screen.findAllByText(/poll #\d+/i);
-  expect(polls.length).toBe(2);
+
+  for (let i = 0; i < TEST_POLLS.length; i++) {
+    const poll = await screen.findByText(TEST_POLLS[i].title);
+    expect(poll).toBeInTheDocument();
+  }
 });

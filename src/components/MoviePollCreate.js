@@ -18,6 +18,7 @@ import { ASYNC_ACTION_STATES } from "../slices/utils";
 import CopyText from "./CopyText";
 
 export default function MoviePollCreate(props) {
+  const [pollTitle, setPollTitle] = useState("");
   const [movieTitle, setMovieTitle] = useState("");
   const [choices, setChoices] = useState([]);
   const createStatus = useSelector((state) => state.poll.createPollStatus);
@@ -34,7 +35,12 @@ export default function MoviePollCreate(props) {
   // to optimize the rendering of the child, can use useCallback
   // here.
   const onClickCreatePoll = () => {
-    dispatch(createPoll({ choices: choices.map(({ title }) => ({ title })) }));
+    dispatch(
+      createPoll({
+        title: pollTitle,
+        choices: choices.map(({ title }) => ({ title })),
+      })
+    );
   };
 
   const onClickCreateAnother = () => {
@@ -79,6 +85,21 @@ export default function MoviePollCreate(props) {
           {error}
         </Text>
       )}
+      <Flex mb={4}>
+        <Text size="lg">Step 1: name your poll</Text>
+      </Flex>
+      <Flex>
+        <Input
+          value={pollTitle}
+          onChange={(ev) => setPollTitle(ev.target.value)}
+          label="Name"
+          type="text"
+          width={["full", "3/4", "3/5", "1/2"]}
+        />
+      </Flex>
+      <Flex my={4}>
+        <Text size="lg">Step 2: add movies</Text>
+      </Flex>
       <form onSubmit={onSubmitMovieOption}>
         <Flex direction="col" spaceY={4} alignItems="start">
           <Input

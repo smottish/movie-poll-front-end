@@ -32,7 +32,7 @@ const TEST_POLL = {
 };
 
 function addMovies(screen, movies = []) {
-  const addMovie = screen.getByText(/add movie/i);
+  const addMovie = screen.getByText(/^add movie$/i);
   const titleInput = screen.getByLabelText(/title/i);
   movies.forEach((title) => {
     fireEvent.change(titleInput, { target: { value: title } });
@@ -85,14 +85,14 @@ afterAll(() => server.close());
 
 test("renders create movie poll", () => {
   render(<MoviePollCreate />);
-  const addMovie = screen.getByText(/add movie/i);
+  const addMovie = screen.getByText(/^add movie$/i);
   expect(addMovie).toBeInTheDocument();
 });
 
 test("should add a movie", () => {
   const testMovie = "Star Wars";
   render(<MoviePollCreate />);
-  const addMovie = screen.getByText(/add movie/i);
+  const addMovie = screen.getByText(/^add movie$/i);
   const title = screen.getByLabelText(/title/i);
   fireEvent.change(title, { target: { value: testMovie } });
   fireEvent.click(addMovie);
@@ -113,7 +113,7 @@ test("should be a button to create poll", () => {
 test("should remove a movie", () => {
   const testMovie = "Star Wars";
   render(<MoviePollCreate />);
-  const addMovie = screen.getByText(/add movie/i);
+  const addMovie = screen.getByText(/^add movie$/i);
   const title = screen.getByLabelText(/title/i);
   fireEvent.change(title, { target: { value: testMovie } });
   fireEvent.click(addMovie);

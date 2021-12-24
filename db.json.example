@@ -1,5 +1,5 @@
 {
-  "polls": [{ "id": 1, "owner": "1234", "createdAt": 1636678800000 }],
+  "polls": [{ "id": 1, "title": "My first poll!", "owner": "1234", "createdAt": 1636678800000 }],
   "choices": [
     { "id": 1, "pollId": 1, "title": "Star Wars: A New Hope" },
     { "id": 2, "pollId": 1, "title": "Star Wars: Empire Strikes Back" },
