@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import PropTypes from "prop-types";
 import {
   Flex,
   SecondaryButton,
@@ -12,28 +11,16 @@ import {
   getHeightClasses,
   Text,
 } from "./ui-kit";
-import { TrashIcon, DuplicateIcon } from "@heroicons/react/outline";
+import { TrashIcon } from "@heroicons/react/outline";
 import classNames from "classnames";
 import { createPoll, resetPoll } from "../slices/poll";
 import { ASYNC_ACTION_STATES } from "../slices/utils";
+import CopyText from "./CopyText";
 
-async function copyToClipboard(text) {
-  if (navigator && navigator.clipboard) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (err) {
-      return false;
-    }
-  }
-
-  return false;
-}
-
-export default function MoviePoll({ create }) {
+export default function MoviePollCreate(props) {
+  const [pollTitle, setPollTitle] = useState("");
   const [movieTitle, setMovieTitle] = useState("");
   const [choices, setChoices] = useState([]);
-  const [copiedText, setCopiedText] = useState("");
   const createStatus = useSelector((state) => state.poll.createPollStatus);
   const poll = useSelector((state) => state.poll.poll);
   const error = useSelector((state) => state.poll.error);
@@ -44,24 +31,16 @@ export default function MoviePoll({ create }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => () => dispatch(resetPoll()), []); // reset state on unmount
 
-  useEffect(() => {
-    let timer;
-    if (copiedText !== "") {
-      timer = setTimeout(() => setCopiedText(""), 1000);
-    }
-
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-  }, [copiedText]);
-
   // If you're passing this into a child component, and you want
   // to optimize the rendering of the child, can use useCallback
   // here.
   const onClickCreatePoll = () => {
-    dispatch(createPoll({ choices: choices.map(({ title }) => ({ title })) }));
+    dispatch(
+      createPoll({
+        title: pollTitle,
+        choices: choices.map(({ title }) => ({ title })),
+      })
+    );
   };
 
   const onClickCreateAnother = () => {
@@ -77,16 +56,6 @@ export default function MoviePoll({ create }) {
     setChoices([...choices, { title: movieTitle, __id: Date.now() }]);
   };
 
-  const onCopyPollLink = () => {
-    copyToClipboard(poll.link).then((success) => {
-      if (success) {
-        setCopiedText("Copied!");
-      } else {
-        setCopiedText("Sorry, couldn't copy!");
-      }
-    });
-  };
-
   const removeMovie = (id) => {
     setChoices(choices.filter(({ __id }) => __id !== id));
   };
@@ -98,29 +67,7 @@ export default function MoviePoll({ create }) {
           Your poll is ready. Share the following link with your friends and
           family!
         </Text>
-        <Flex
-          borderWidth={2}
-          borderRadius="md"
-          borderColor="gray.700"
-          justifyContent="between"
-          alignItems="center"
-          p={4}
-          my={5}
-        >
-          <Text size="lg">{poll.link}</Text>
-          {copiedText ? (
-            <Text size="sm">{copiedText}</Text>
-          ) : (
-            <button onClick={onCopyPollLink}>
-              <DuplicateIcon
-                className={classNames(
-                  ...getWidthClasses(6),
-                  ...getHeightClasses(6)
-                )}
-              />
-            </button>
-          )}
-        </Flex>
+        <CopyText text={poll.link} />
         <Flex spaceX={2}>
           <PrimaryButton onClick={() => history.push("/")}>Done</PrimaryButton>
           <SecondaryButton onClick={onClickCreateAnother}>
@@ -138,6 +85,21 @@ export default function MoviePoll({ create }) {
           {error}
         </Text>
       )}
+      <Flex mb={4}>
+        <Text size="lg">Step 1: name your poll</Text>
+      </Flex>
+      <Flex>
+        <Input
+          value={pollTitle}
+          onChange={(ev) => setPollTitle(ev.target.value)}
+          label="Name"
+          type="text"
+          width={["full", "3/4", "3/5", "1/2"]}
+        />
+      </Flex>
+      <Flex my={4}>
+        <Text size="lg">Step 2: add movies</Text>
+      </Flex>
       <form onSubmit={onSubmitMovieOption}>
         <Flex direction="col" spaceY={4} alignItems="start">
           <Input
@@ -190,11 +152,3 @@ export default function MoviePoll({ create }) {
     </>
   );
 }
-
-MoviePoll.propTypes = {
-  create: PropTypes.bool,
-};
-
-MoviePoll.defaultProps = {
-  create: false,
-};

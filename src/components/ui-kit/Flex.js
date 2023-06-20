@@ -3,6 +3,7 @@ import classNames from "classnames";
 import {
   getColorClass,
   getWidthClasses,
+  getHeightClasses,
   getBorderClasses,
   SHARED_PROP_TYPES,
 } from "./utils";
@@ -26,6 +27,8 @@ export function Flex({
   mx,
   my,
   width,
+  height,
+  bgColor,
   className,
   ...props
 }) {
@@ -46,6 +49,8 @@ export function Flex({
     my && `my-${my}`,
     ...getBorderClasses(borderWidth, borderColor, borderRadius),
     ...getWidthClasses(width),
+    ...getHeightClasses(height),
+    bgColor && getColorClass("bg", bgColor),
     className
   );
   return (

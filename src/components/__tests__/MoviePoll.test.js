@@ -1,13 +1,38 @@
 import { screen, fireEvent } from "@testing-library/react";
-import MoviePoll from "../MoviePoll";
+import MoviePollCreate from "../MoviePollCreate";
+import MoviePollDetails from "../MoviePollDetails";
 import { render } from "../../test-utils";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
+import { MemoryRouter, Route } from "react-router-dom";
 
 let isCreatePollError = false;
+let isVoteError = false;
+
+const TEST_POLL = {
+  id: 1,
+  choices: [
+    {
+      id: 1,
+      pollId: 1,
+      title: "Star Wars: A New Hope",
+    },
+    {
+      id: 2,
+      pollId: 1,
+      title: "Star Wars: Empire Strikes Back",
+    },
+    {
+      id: 3,
+      pollId: 1,
+      title: "Star Wars: Return of the Jedi",
+    },
+  ],
+  link: "http://example.com/polls/1",
+};
 
 function addMovies(screen, movies = []) {
-  const addMovie = screen.getByText(/add movie/i);
+  const addMovie = screen.getByText(/^add movie$/i);
   const titleInput = screen.getByLabelText(/title/i);
   movies.forEach((title) => {
     fireEvent.change(titleInput, { target: { value: title } });
@@ -26,6 +51,27 @@ const handlers = [
       return res(ctx.status(201), ctx.json(req.body));
     }
   }),
+
+  rest.get("/polls/:id", (req, res, ctx) => {
+    const { id } = req.params;
+    if (isNaN(parseInt(id))) {
+      return res(ctx.status(404));
+    } else {
+      return res(ctx.status(200), ctx.json(TEST_POLL));
+    }
+  }),
+
+  rest.post("/votes", (req, res, ctx) => {
+    if (isVoteError) {
+      return res(ctx.status(500));
+    }
+
+    const response = {
+      ...TEST_POLL,
+      votes: [{ ...req.body }],
+    };
+    return res(ctx.status(201), ctx.json(response));
+  }),
 ];
 const server = setupServer(...handlers);
 
@@ -33,19 +79,20 @@ beforeAll(() => server.listen());
 afterEach(() => {
   server.resetHandlers();
   isCreatePollError = false;
+  isVoteError = false;
 });
 afterAll(() => server.close());
 
-test("renders create MoviePoll", () => {
-  render(<MoviePoll create={true} />);
-  const addMovie = screen.getByText(/add movie/i);
+test("renders create movie poll", () => {
+  render(<MoviePollCreate />);
+  const addMovie = screen.getByText(/^add movie$/i);
   expect(addMovie).toBeInTheDocument();
 });
 
 test("should add a movie", () => {
   const testMovie = "Star Wars";
-  render(<MoviePoll create={true} />);
-  const addMovie = screen.getByText(/add movie/i);
+  render(<MoviePollCreate />);
+  const addMovie = screen.getByText(/^add movie$/i);
   const title = screen.getByLabelText(/title/i);
   fireEvent.change(title, { target: { value: testMovie } });
   fireEvent.click(addMovie);
@@ -57,7 +104,7 @@ test("should add a movie", () => {
 
 test("should be a button to create poll", () => {
   const movies = ["Soul", "Up"];
-  render(<MoviePoll create={true} />);
+  render(<MoviePollCreate />);
   addMovies(screen, movies);
   const createPoll = screen.getByText(/create poll/i);
   expect(createPoll).toBeInTheDocument();
@@ -65,8 +112,8 @@ test("should be a button to create poll", () => {
 
 test("should remove a movie", () => {
   const testMovie = "Star Wars";
-  render(<MoviePoll create={true} />);
-  const addMovie = screen.getByText(/add movie/i);
+  render(<MoviePollCreate />);
+  const addMovie = screen.getByText(/^add movie$/i);
   const title = screen.getByLabelText(/title/i);
   fireEvent.change(title, { target: { value: testMovie } });
   fireEvent.click(addMovie);
@@ -77,7 +124,7 @@ test("should remove a movie", () => {
 });
 
 test("should create a poll", async () => {
-  render(<MoviePoll create={true} />);
+  render(<MoviePollCreate />);
   addMovies(screen, ["Soul", "Up"]);
   const createPoll = screen.getByText(/create poll/i);
   fireEvent.click(createPoll);
@@ -86,7 +133,7 @@ test("should create a poll", async () => {
 
 test("create poll failure should display error", async () => {
   isCreatePollError = true;
-  render(<MoviePoll create={true} />);
+  render(<MoviePollCreate />);
   addMovies(screen, ["Soul", "Up"]);
   const createPoll = screen.getByText(/create poll/i);
   fireEvent.click(createPoll);
@@ -94,7 +141,7 @@ test("create poll failure should display error", async () => {
 });
 
 test("create another poll", async () => {
-  render(<MoviePoll create={true} />);
+  render(<MoviePollCreate />);
   addMovies(screen, ["Soul", "Up"]);
   const createPoll = screen.getByText(/create poll/i);
   fireEvent.click(createPoll);
@@ -102,4 +149,67 @@ test("create another poll", async () => {
   const createAnother = screen.getByText(/create another/i);
   fireEvent.click(createAnother);
   expect(screen.queryByTestId("create-poll-success")).not.toBeInTheDocument();
+});
+
+test("should display a poll", async () => {
+  render(
+    <MemoryRouter initialEntries={["/polls/1"]}>
+      <Route path="/polls/:id">
+        <MoviePollDetails />
+      </Route>
+    </MemoryRouter>
+  );
+  const voteBtn = await screen.findByTestId(
+    `vote ${TEST_POLL.choices[0].title}`
+  );
+  expect(voteBtn).toBeInTheDocument();
+});
+
+test("should display an error", async () => {
+  render(
+    <MemoryRouter initialEntries={["/polls/invalid"]}>
+      <Route path="/polls/:id">
+        <MoviePollDetails />
+      </Route>
+    </MemoryRouter>
+  );
+  const error = await screen.findByTestId("poll-details-failure");
+  expect(error).toBeInTheDocument();
+});
+
+test("voting should succeed", async () => {
+  render(
+    <MemoryRouter initialEntries={["/polls/1"]}>
+      <Route path="/polls/:id">
+        <MoviePollDetails />
+      </Route>
+    </MemoryRouter>
+  );
+  const voteBtn = await screen.findByTestId(
+    `vote ${TEST_POLL.choices[0].title}`
+  );
+
+  fireEvent.click(voteBtn);
+  const submitBtn = await screen.findByText(/vote/i);
+  fireEvent.click(submitBtn);
+  expect(await screen.findByTestId("submit-vote-success")).toBeInTheDocument();
+});
+
+test("voting should fail", async () => {
+  isVoteError = true;
+  render(
+    <MemoryRouter initialEntries={["/polls/1"]}>
+      <Route path="/polls/:id">
+        <MoviePollDetails />
+      </Route>
+    </MemoryRouter>
+  );
+  const voteBtn = await screen.findByTestId(
+    `vote ${TEST_POLL.choices[0].title}`
+  );
+
+  fireEvent.click(voteBtn);
+  const submitBtn = await screen.findByText(/vote/i);
+  fireEvent.click(submitBtn);
+  expect(await screen.findByTestId("poll-details-failure")).toBeInTheDocument();
 });
